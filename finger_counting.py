@@ -12,6 +12,7 @@ finger_points = {
     "Mittelfinger": (10, 12),
     "Ringfinger": (14, 16),
     "kleiner Finger": (18, 20),
+    "Daumen": (3, 4)
 }
 finger_count = 0
 while True:
@@ -25,19 +26,31 @@ while True:
     hands_result = hands.process(frame_converted)
 
     finger_count = 0
+    is_finger_extended = False
 
     if hands_result.multi_hand_landmarks is not None:
-
-        for hand in hands_result.multi_hand_landmarks:
-
+        for hand, hand_side in zip(hands_result.multi_hand_landmarks, hands_result.multi_handedness):
             drawing.draw_landmarks(
                 frame, hand, mp.solutions.hands.HAND_CONNECTIONS, drawing_style, drawing_style)
 
             for finger, (point_joint, point_tip) in finger_points.items():
+                is_finger_extended = False
+                if finger == "Daumen":
+                    if hand_side.classification[0].label == "Right":
+                        if hand.landmark[point_tip].x > hand.landmark[point_joint].x:
+                            is_finger_extended = True
 
-                if hand.landmark[point_tip].y < hand.landmark[point_joint].y:
+                    else:
+                        if hand.landmark[point_tip].x < hand.landmark[point_joint].x:
+                            is_finger_extended = True
+
+                else:
+                    if hand.landmark[point_tip].y < hand.landmark[point_joint].y:
+                        is_finger_extended = True
+
+                if is_finger_extended:
                     finger_count += 1
-                    print(f" {finger} ist ausgestreckt")
+                    print(f"{finger} ist ausgestreckt!")
 
     cv2.putText(frame, f"{finger_count} Finger ausgestreckt!",
                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (52, 172, 76), 2)
