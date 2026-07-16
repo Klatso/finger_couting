@@ -50,7 +50,7 @@ while True:
 
                 if is_finger_extended:
                     finger_count += 1
-                    print(f"{finger} ist ausgestreckt!")
+                    print(f"Der {finger} ist ausgestreckt!")
 
     cv2.putText(frame, f"{finger_count} Finger ausgestreckt!",
                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (52, 172, 76), 2)
